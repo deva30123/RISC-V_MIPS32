@@ -4,6 +4,7 @@ module ifetch(
   output NPC,
   output IR
 );
-  reg [9:0] PC;
-  PC = 
+  reg [31:0] PC;
+  NPC = sel?ALU:(PC+1);
+  IR = inst_mem(.addr_r(PC))
 endmodule
