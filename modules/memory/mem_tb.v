@@ -12,7 +12,7 @@ module tb_inst_mem();
   wire [31:0] data_out;
 
   // Instantiate the memory module
-  inst_mem uut (
+  mem uut (
     .clk(clk),   
     .data_in(data_in),
     .addr_w(addr_w),
