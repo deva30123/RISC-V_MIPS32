@@ -1,21 +1,19 @@
 /*
-testbench for 32bit word addressable memory setup
+testbench for 32bit word addressable memory setup with 1 read port and 1 write port
 */
 `timescale 1ns / 1ps
 
 module tb_inst_mem();
 
   // Testbench signals
-  reg clk;
- 
+  reg clk; 
   reg [31:0] data_in;
   reg [9:0] addr_w, addr_r;
   wire [31:0] data_out;
 
   // Instantiate the memory module
   inst_mem uut (
-    .clk(clk),
-   
+    .clk(clk),   
     .data_in(data_in),
     .addr_w(addr_w),
     .addr_r(addr_r),
@@ -28,8 +26,7 @@ module tb_inst_mem();
   // Test sequence
   initial begin
     // Initialize signals
-    clk = 0;
-  
+    clk = 0;  
     data_in = 0;
     addr_w = 0;
     addr_r = 0;
