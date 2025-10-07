@@ -14,8 +14,11 @@ module inst_mem (
   reg [31:0] mem[1023:0] ,out;
   
   always@(posedge clk) begin
-    out <= mem[addr_r];
-    mem[addr_w] <= in;
+    if (clr==1) mem = {32768{1'b0}};
+    else begin
+      out <= mem[addr_r];
+      mem[addr_w] <= in;
+    end
   end
   assign data_out = out;
 endmodule
