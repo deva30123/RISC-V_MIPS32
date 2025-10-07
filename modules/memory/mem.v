@@ -5,9 +5,8 @@ memory to store instructions
 1 read port,1 write port
 */
 
-module inst_mem (
-  input clk,
-  
+module mem (
+  input clk,  
   input [31:0] data_in,
   input [9:0] addr_w,addr_r,
   output [31:0] data_out
