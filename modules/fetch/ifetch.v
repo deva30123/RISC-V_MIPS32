@@ -1,20 +1,16 @@
 //`include "mem.v"
 module ifetch(
   input clk,
-  input ALU,
+  input [31:0]ALU,
   input sel,
-  output NPC,
-  output IR
+  output [31:0]NPC,
+  output [31:0]IR
 );
-  
-  reg [9:0] PC;
+  reg [31:0] mem [1023:0] ;
+  reg [31:0] PC;
   reg [31:0]IR;
-  assign NPC = sel?ALU:(PC+1);
-  mem inst(.clk(clk), 
-           .addr_w(),
-           .data_in(),
-           .addr_r(PC),          
-           .data_out(IR)
-          ); 
+  assign NPC = sel?ALU:(PC+1);  
 endmodule
-/*leave unconnected ports unconnected*/
+/*
+Ext mem block not incorporated
+*/
