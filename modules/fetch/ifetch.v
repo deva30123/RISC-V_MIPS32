@@ -1,4 +1,4 @@
-`include "mem.v"
+//`include "mem.v"
 module ifetch(
   input clk,
   input ALU,
@@ -6,6 +6,7 @@ module ifetch(
   output NPC,
   output IR
 );
+  
   reg [9:0] PC;
   reg [31:0]IR;
   assign NPC = sel?ALU:(PC+1);
