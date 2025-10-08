@@ -1,6 +1,7 @@
 module decode(
   input[31:0] NPC_if,
   input[31:0] IR_if,  
+  input [31:0] LMD,
   output [31:0] A,
   output [31:0] B,
   output [31:0] Imm,
@@ -18,4 +19,5 @@ module decode(
   assign imm = {{15{IR_if[15]}},IR_if[15:0]};
   assign A = reg_b[rs1];
   assign B = reg_b[rs2];
+  always@(*) reg_b[rd] = LMD; 
 endmodule
