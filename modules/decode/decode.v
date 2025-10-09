@@ -1,3 +1,4 @@
+
 module decode(
   input[31:0] NPC_if,
   input[31:0] IR_if,  
@@ -16,7 +17,7 @@ module decode(
   assign rd = IR_if[25:21];
   assign rs1 = IR_if[20:16];
   assign rs2 = IR_if[15:11];
-  assign imm = {{15{IR_if[15]}},IR_if[15:0]};
+  assign Imm = {{116{IR_if[15]}},IR_if[15:0]};
   assign A = reg_b[rs1];
   assign B = reg_b[rs2];
   always@(*) reg_b[rd] = ALU_out; 
