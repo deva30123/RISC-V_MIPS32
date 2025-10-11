@@ -2,7 +2,7 @@
 module decode(
   input[31:0] NPC_if,
   input[31:0] IR_if,  
-  input [31:0] ALU_out,
+  input [31:0] LMD,
   output [31:0] A,
   output [31:0] B,
   output [31:0] D,
@@ -22,5 +22,5 @@ module decode(
   assign A = reg_b[rs1];
   assign B = reg_b[rs2];
   assign D = reg_b[rd];
-  always@(*) reg_b[rd] = ALU_out; 
+  always@(*) reg_b[rd] = LMD; 
 endmodule
