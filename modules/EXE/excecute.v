@@ -31,10 +31,20 @@ module exe(
       ALU_out = a+b; //ld, st, branch all use npc+imm
     end           //controls
   end
+  always@(*) begin
+    if(opcode[5:0]==11010)begin
+      cond = opcode[0]^((A==0)?1:0); //  branch
+    end
+    else cond = 0;
+  end
   assign NPC_ex=(cond?)ALU_out:NPC_id;
 endmodule
 /*
 Arithmetic and logic operations {opcode[5] == 0}
 opcode[4] == 0 => RR addressing
-
+opcode[4] == 0 => RImm addressing
+Branch
+BEQZ=>110100; BnEQZ=>110101
+beqz:- if(A=0)cond = 1 else cond = 0
+beqz:- if(A=0)cond = 0 else cond = 1
 */
