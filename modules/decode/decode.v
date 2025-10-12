@@ -3,6 +3,7 @@ module decode(
   input[31:0] NPC_if,
   input[31:0] IR_if,  
   input [31:0] LMD,
+  input [4:0] rd_w,
   output [31:0] A,
   output [31:0] B,
   output [31:0] D,
@@ -22,5 +23,5 @@ module decode(
   assign A = reg_b[rs1];
   assign B = reg_b[rs2];
   assign D = reg_b[rd];
-  always@(*) reg_b[rd] = LMD; 
+  always@(*) reg_b[rd_w] = LMD; 
 endmodule
