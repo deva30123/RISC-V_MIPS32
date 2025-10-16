@@ -8,7 +8,8 @@ module exe(
   output [31:0] NPC_ex,
   output[31:0] IR_ex,
   output[31:0] ALU_res,
-  output[31:0] B_ex
+  output[31:0] B_ex,
+  output sel
 );
   wire[31:0] a,b;
   reg [31:0] ALU_out;
@@ -41,6 +42,7 @@ module exe(
   end
   assign NPC_ex = (cond)?ALU_out:NPC_id;
   assign ALU_res = ALU_out;
+  assign sel = cond;
 endmodule
 /*
 Arithmetic and logic operations {opcode[5] == 0}
