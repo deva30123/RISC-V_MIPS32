@@ -2,8 +2,8 @@
 module decode(
   input[31:0] NPC_if,
   input[31:0] IR_if,  
-  input [31:0] LMD,
-  input [4:0] rd_w,
+  input [31:0] LMD, //Data writeback
+  input [4:0] rd_w, // Data writeback
   output [31:0] A,
   output [31:0] B,
   output [31:0] D,
