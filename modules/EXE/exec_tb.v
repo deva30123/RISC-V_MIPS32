@@ -27,14 +27,15 @@ module exe_tb();
     .NPC_ex(NPC_ex),
     .IR_ex(IR_ex),
     .ALU_res(ALU_out),
-    .B_ex(B_ex)
+    .B_ex(B_ex),
+    .sel(sel)
   );
 
   // Test stimulus
   initial begin
     // Monitor signal changes
     $monitor("Time=%0t | A=%h | B=%h |cond = %b | ALU_out=%h", 
-              $time, uut.a, uut.b, uut.cond, ALU_out);
+              $time, uut.a, uut.b, sel, ALU_out);
 
     // Initialize inputs
     A = 0; B = 0; Imm = 0; NPC_id = 0; IR_id = 0;
