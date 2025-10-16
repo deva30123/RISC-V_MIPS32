@@ -2,6 +2,7 @@
 module ifetch(
   input clk,   
   input [31:0]NPC_alu,
+  input sel,
   output [31:0]NPC,
   output [31:0]IR
 );
@@ -9,7 +10,7 @@ module ifetch(
   reg [31:0] PC;
   reg [31:0]Ir;
   always@(posedge clk)begin
-    PC = NPC_alu;
+    PC = sel?NPC_alu:(PC+1);
     Ir = mem[PC];
   end
   assign IR = Ir;
