@@ -40,7 +40,7 @@ module exe(
     end
     else cond = 0;
   end
-  assign NPC_ex = (cond)?ALU_out:NPC_id;
+  assign NPC_ex = (cond)?ALU_out:NPC_id; //redundant
   assign ALU_res = ALU_out;
   assign sel = cond;
 endmodule
