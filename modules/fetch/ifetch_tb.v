@@ -9,6 +9,7 @@ module ifetch_tb;
   // -------------------
   reg clk; 
   reg [31:0] NPC_mem;
+  reg sel
   wire [31:0] NPC;
   wire [31:0] IR;
 
@@ -18,9 +19,11 @@ module ifetch_tb;
   ifetch uut (
     .clk(clk),
     .NPC_alu(NPC_mem),
+    .sel(sel),
     .NPC(NPC),
     .IR(IR)
   );
+  assign sel = 0;
 
   // -------------------
   // Clock generation
@@ -37,7 +40,7 @@ module ifetch_tb;
     // Initialize signals
     
     NPC_mem = 0;
-   
+    
     
      // Test Case 0 filling up the reg bank
     for(int i=0;i<1024;i++)begin
@@ -54,6 +57,12 @@ module ifetch_tb;
     end
     
     #10;
+    // Test 2: branch & increment
+    $display("T=%0t | PC=%h : IR=0x%h | NPC=%h ",$time, uut.PC , IR , NPC); 
+    #10 sel = 1
+    #10$display("T=%0t | PC=%h : IR=0x%h | NPC=%h ",$time, uut.PC , IR , NPC);
+    #10$display("T=%0t | PC=%h : IR=0x%h | NPC=%h ",$time, uut.PC , IR , NPC);
+    #10$display("T=%0t | PC=%h : IR=0x%h | NPC=%h ",$time, uut.PC , IR , NPC);
 
     // End simulation
     $finish;
