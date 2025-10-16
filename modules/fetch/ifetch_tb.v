@@ -9,7 +9,7 @@ module ifetch_tb;
   // -------------------
   reg clk; 
   reg [31:0] NPC_mem;
-  reg sel
+  reg sel;
   wire [31:0] NPC;
   wire [31:0] IR;
 
@@ -23,7 +23,7 @@ module ifetch_tb;
     .NPC(NPC),
     .IR(IR)
   );
-  assign sel = 0;
+  
 
   // -------------------
   // Clock generation
@@ -40,7 +40,7 @@ module ifetch_tb;
     // Initialize signals
     
     NPC_mem = 0;
-    
+    sel = 1;
     
      // Test Case 0 filling up the reg bank
     for(int i=0;i<1024;i++)begin
@@ -50,19 +50,25 @@ module ifetch_tb;
     // Wait for some cycles
     #10;
 
-    // Test 1: select NPC_mem
-    for(int i=0;i<10;i++)begin
-      #10 NPC_mem = $urandom % 1024;     
-      $display("T=%0t | PC=%h : IR=0x%h | NPC=%h ",$time, uut.PC , IR , NPC); 
-    end
+//     // Test 1: select NPC_mem
+//     for(int i=0;i<10;i++)begin
+//       #10 NPC_mem = $urandom % 1024;     
+//       $display("T=%0t | PC=%h : IR=0x%h | NPC=%h ",$time, uut.PC , IR , NPC); 
+//     end
     
     #10;
     // Test 2: branch & increment
     $display("T=%0t | PC=%h : IR=0x%h | NPC=%h ",$time, uut.PC , IR , NPC); 
-    #10 sel = 1
-    #10$display("T=%0t | PC=%h : IR=0x%h | NPC=%h ",$time, uut.PC , IR , NPC);
-    #10$display("T=%0t | PC=%h : IR=0x%h | NPC=%h ",$time, uut.PC , IR , NPC);
-    #10$display("T=%0t | PC=%h : IR=0x%h | NPC=%h ",$time, uut.PC , IR , NPC);
+    #10 sel = 0;
+    #10 $display("T=%0t | PC=%h : IR=0x%h | NPC=%h ",$time, uut.PC , IR , NPC);
+    NPC_mem = $urandom % 1024;
+    #10 $display("T=%0t | PC=%h : IR=0x%h | NPC=%h ",$time, uut.PC , IR , NPC);
+    #10 sel = 1;
+    #10 $display("T=%0t | PC=%h : IR=0x%h | NPC=%h ",$time, uut.PC , IR , NPC);
+    #10 sel = 0;
+    #10 $display("T=%0t | PC=%h : IR=0x%h | NPC=%h ",$time, uut.PC , IR , NPC);
+    #10 $display("T=%0t | PC=%h : IR=0x%h | NPC=%h ",$time, uut.PC , IR , NPC);
+    #10 $display("T=%0t | PC=%h : IR=0x%h | NPC=%h ",$time, uut.PC , IR , NPC);
 
     // End simulation
     $finish;
