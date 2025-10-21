@@ -146,47 +146,66 @@ will have 2 modes
 module mips32(
   input clk
 );
-  reg [31:0];
-  wire [31:0];
+  reg [31:0] NPC_id,IR_id,npcx,sel;
+  wire [31:0] NPC_if,IR_if;
   ifetch i_f (
     .clk(clk)
-    .NPC_alu(),
-    .sel(),
+    .NPC_alu(npcx),
+    .sel(sel),
     
-    .NPC(),
-    .IR(),
+    .NPC(NPC_if),
+    .IR(IR_if),
   );
-
+  always@(posedge clk)begin
+    NPC_id <= NPC_if;
+    IR_id <= IR_if;
+  end
+  
+  wire [31:0] A,B,D,Imm,NPC_id,IR_id;
+  reg [31:0] Ax,Bx,Ix,NPCx,IRx;
   decode id(
-    .NPC_if(),
-    .IR_if(),
+    .NPC_if(NPC_id),
+    .IR_if(IR_id),
     .LMD(),
     .rd_w(),
     
-    .A(),
-    .B(),
+    .A(A),
+    .B(B),
     .D(),
-    .Imm(),
-    .NPC_id(),
-    .IR_id(),
+    .Imm(Imm),
+    .NPC_id(NPC_id),
+    .IR_id(IR_id),
   );
+  
+  always@(posedge clk)begin
+    Ax <= A;
+    Bx <= B;
+    Ix <= Imm;
+    NPCx <= NPC_id;
+    IRx <= IR_id;
+  end  
+  wire [31:0] Irx, ALUx, Bex;
+  reg [31:0] ;
   exe ex(
-    .A(),
-    .B(),
-    .Imm(),
-    .NPC_id(),
-    .IR_id(),
+    .A(Ax),
+    .B(Bx),
+    .Imm(Ix),
+    .NPC_id(NPCx),
+    .IR_id(IRx),
     
-    .NPC_ex(),
+    .NPC_ex(npcx),
     .IR_ex(),
     .ALU_res(),
     .B_ex(),
-    .sel()
+    .sel(sel)
 );
+  
 memax max(
   .IR_ex(), .ALU_ex(), .D_ex(),
   .IR_mem(), .LMD(), .ALU_mem()
 );
+
+   
 wb w_b(
   .IR_mx() , .ALU() ,.LMD(),
   .data(), .IR_wb()
