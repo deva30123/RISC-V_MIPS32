@@ -146,7 +146,7 @@ will have 2 modes
 module mips32(
   input clk
 );
-  reg [31:0] NPC_id,IR_id,npcx,sel;
+ 
   wire [31:0] NPC_if,IR_if;
   ifetch i_f (
     .clk(clk)
@@ -156,13 +156,13 @@ module mips32(
     .NPC(NPC_if),
     .IR(IR_if),
   );
+  reg [31:0] NPC_id,IR_id,npcx,sel;
   always@(posedge clk)begin
     NPC_id <= NPC_if;
     IR_id <= IR_if;
   end
   
-  wire [31:0] A,B,D,Imm,NPC_id,IR_id;
-  reg [31:0] Ax,Bx,Ix,NPCx,IRx, data,rd_addr;
+  wire [31:0] A,B,D,Imm,NPC_id,IR_id,Ds; 
   decode id(
     .NPC_if(NPC_id),
     .IR_if(IR_id),
@@ -171,21 +171,22 @@ module mips32(
     
     .A(A),
     .B(B),
-    .D(),//to memax
+    .D(Ds),//to memax
     .Imm(Imm),
     .NPC_id(NPC_id),
     .IR_id(IR_id),
   );
-  
+  reg [31:0] Ax,Bx,Ix,NPCx,IRx, data,rd_addr,Dsx;
   always@(posedge clk)begin
     Ax <= A;
     Bx <= B;
     Ix <= Imm;
     NPCx <= NPC_id;
     IRx <= IR_id;
+    Dsx <= Ds;
   end  
-  wire [31:0] Irx, ALUx, Bex;
-  reg [31:0] IrX,AluX;
+  
+  wire [31:0] Irx, ALUx, Bex,Dsx;  
   exe ex(
     .A(Ax),
     .B(Bx),
@@ -199,16 +200,19 @@ module mips32(
     .NPC_ex(npcx),//to inst fetch
     .sel(sel)//to inst fetch
   );
+  reg [31:0] IrX,AluX,Dsm;
   always@(posedge clk)begin
     IrX<=Irx;
     AluX<=ALUx;
+    Dsm <= Dsx;
   end
-  wire[31:0] IR_mem, LMD, ALU_mem;
-  reg[31:0] IR_mx ,ALUmx ,LMDx;
+  
+  wire[31:0] IR_mem, LMD, ALU_mem; 
   memax max(
-    .IR_ex(IrX), .ALU_ex(AluX), .D_ex(),
+    .IR_ex(IrX), .ALU_ex(AluX), .D_ex(Dsm),
     .IR_mem(IR_mem), .LMD(LMD), .ALU_mem(ALU_mem)
   );
+  reg[31:0] IR_mx ,ALUmx ,LMDx;
   always@(posedge clk)begin
     IR_mx<=IR_mem;
     ALUmX<=ALU_mem;
