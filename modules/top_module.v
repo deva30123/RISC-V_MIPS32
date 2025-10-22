@@ -150,8 +150,8 @@ module mips32(
   wire [31:0] NPC_if,IR_if;
   ifetch i_f (
     .clk(clk)
-    .NPC_alu(npcx),
-    .sel(sel),
+    .NPC_alu(npcx),//from alu
+    .sel(sel),//from alu
     
     .NPC(NPC_if),
     .IR(IR_if),
