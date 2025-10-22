@@ -8,7 +8,7 @@ module exe(
   output [31:0] NPC_ex,
   output[31:0] IR_ex,
   output[31:0] ALU_res,
-  output[31:0] B_ex,
+  //output[31:0] B_ex,
   output sel
 );
   wire[31:0] a,b;
