@@ -55,7 +55,7 @@ module exe(
   output [31:0] NPC_ex,
   output[31:0] IR_ex,
   output[31:0] ALU_res,
-  output[31:0] B_ex,
+  //output[31:0] B_ex,
   output sel
 );
   wire[31:0] a,b;
@@ -162,16 +162,16 @@ module mips32(
   end
   
   wire [31:0] A,B,D,Imm,NPC_id,IR_id;
-  reg [31:0] Ax,Bx,Ix,NPCx,IRx;
+  reg [31:0] Ax,Bx,Ix,NPCx,IRx, data,rd_addr;
   decode id(
     .NPC_if(NPC_id),
     .IR_if(IR_id),
-    .LMD(),
-    .rd_w(),
+    .LMD(data),//from writeback
+    .rd_w(rd_addr),//from writeback
     
     .A(A),
     .B(B),
-    .D(),
+    .D(),//to memax
     .Imm(Imm),
     .NPC_id(NPC_id),
     .IR_id(IR_id),
@@ -185,30 +185,43 @@ module mips32(
     IRx <= IR_id;
   end  
   wire [31:0] Irx, ALUx, Bex;
-  reg [31:0] ;
+  reg [31:0] IrX,AluX;
   exe ex(
     .A(Ax),
     .B(Bx),
     .Imm(Ix),
     .NPC_id(NPCx),
-    .IR_id(IRx),
+    .IR_id(IRx),    
     
-    .NPC_ex(npcx),
-    .IR_ex(),
-    .ALU_res(),
-    .B_ex(),
-    .sel(sel)
-);
-  
-memax max(
-  .IR_ex(), .ALU_ex(), .D_ex(),
-  .IR_mem(), .LMD(), .ALU_mem()
-);
-
-   
-wb w_b(
-  .IR_mx() , .ALU() ,.LMD(),
-  .data(), .IR_wb()
-);
+    .IR_ex(Irx),
+    .ALU_res(ALUx),
+    //.B_ex(Bex),
+    .NPC_ex(npcx),//to inst fetch
+    .sel(sel)//to inst fetch
+  );
+  always@(posedge clk)begin
+    IrX<=Irx;
+    AluX<=ALUx;
+  end
+  wire[31:0] IR_mem, LMD, ALU_mem;
+  reg[31:0] IR_mx ,ALUmx ,LMDx;
+  memax max(
+    .IR_ex(IrX), .ALU_ex(AluX), .D_ex(),
+    .IR_mem(IR_mem), .LMD(LMD), .ALU_mem(ALU_mem)
+  );
+  always@(posedge clk)begin
+    IR_mx<=IR_mem;
+    ALUmX<=ALU_mem;
+    LMDx<=LMD;
+  end  
+  wire [31:0] w_data, rdaddr;
+  wb w_b(
+    .IR_mx(IR_mx) , .ALU(ALUmx) ,.LMD(LMDx),
+    .data(w_data), .IR_wb(rdaddr)// to inst decode
+  );
+  always@(posedge clk)begin
+    data<=w_data;
+    rd_addr<=rdaddr;    
+  end
   
 endmodule
