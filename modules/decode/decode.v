@@ -12,7 +12,8 @@ module decode(
   output hlt
 );
   reg [31:0] reg_b [31:0];//register bank
-  wire [4:0] op,rd,rs1,rs2;
+  wire [5:0] op;
+  wire [4:0] rd,rs1,rs2;
   always@(*) reg_b[0] = 32'b0;//R0 hard wired to 0
   assign NPC_id = NPC_if;
   assign IR_id = IR_if;
