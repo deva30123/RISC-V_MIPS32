@@ -28,10 +28,12 @@ module decode(
   output [31:0] D,
   output [31:0] Imm,
   output[31:0] NPC_id,
-  output[31:0] IR_id
+  output[31:0] IR_id,
+  output hlt
 );
   reg [31:0] reg_b [31:0];//register bank
   wire [4:0] op,rd,rs1,rs2;
+  always@(*) reg_b[0] = 32'b0;//R0 hard wired to 0
   assign NPC_id = NPC_if;
   assign IR_id = IR_if;
   assign op = IR_if[31:26];
@@ -42,6 +44,7 @@ module decode(
   assign A = reg_b[rs1];
   assign B = reg_b[rs2];
   assign D = reg_b[rd];
+  assign hlt = (op == 6'b111111)?1:0;
   always@(*) reg_b[rd_w] = LMD; 
 endmodule
 
@@ -144,10 +147,12 @@ will have 2 modes
 */
 
 module mips32(
-  input clk
+  input clk_x
 );
  
   wire [31:0] NPC_if,IR_if;
+  wire clk,hlt;
+  assign clk = clk_x & hlt;// clock gating when halted
   reg [31:0] npcx;
   reg sel;
   ifetch i_f (
@@ -164,7 +169,7 @@ module mips32(
     IR_id <= IR_if;
   end
   
-  wire [31:0] A,B,D,Imm,NPC_d,IR_d,Ds; 
+  wire [31:0] A,B,D,Imm,NPC_d,IR_d,Ds;
   decode id(
     .NPC_if(NPC_id),
     .IR_if(IR_id),
@@ -176,7 +181,8 @@ module mips32(
     .D(Ds),//to memax
     .Imm(Imm),
     .NPC_id(NPC_d),
-    .IR_id(IR_d)
+    .IR_id(IR_d),
+    .hlt(hlt)
   );
   reg [31:0] Ax,Bx,Ix,NPCx,IRx, data,Dsx;
   reg [4:0] rd_addr;
