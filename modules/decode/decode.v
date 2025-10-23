@@ -1,4 +1,3 @@
-
 module decode(
   input[31:0] NPC_if,
   input[31:0] IR_if,  
@@ -9,10 +8,12 @@ module decode(
   output [31:0] D,
   output [31:0] Imm,
   output[31:0] NPC_id,
-  output[31:0] IR_id
+  output[31:0] IR_id,
+  output hlt
 );
   reg [31:0] reg_b [31:0];//register bank
   wire [4:0] op,rd,rs1,rs2;
+  always@(*) reg_b[0] = 32'b0;//R0 hard wired to 0
   assign NPC_id = NPC_if;
   assign IR_id = IR_if;
   assign op = IR_if[31:26];
@@ -23,5 +24,6 @@ module decode(
   assign A = reg_b[rs1];
   assign B = reg_b[rs2];
   assign D = reg_b[rd];
+  assign hlt = (op == 6'b111111)?1:0;
   always@(*) reg_b[rd_w] = LMD; 
 endmodule
