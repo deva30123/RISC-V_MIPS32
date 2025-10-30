@@ -15,6 +15,7 @@ module exe(
   reg [31:0] ALU_out;
   wire[5:0] opcode; 
   reg cond;
+  assign IR_ex = IR_id;
   assign opcode = IR_id[31:26];
   assign a=(opcode[5:2]==4'b1101)?NPC_id:A;
   assign b=(opcode[4])?Imm:B;
