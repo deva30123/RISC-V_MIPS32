@@ -15,7 +15,7 @@ module exe_tb();
   wire [31:0] NPC_ex;
   wire [31:0] IR_ex;
   wire [31:0] ALU_out;
-  wire [31:0] B_ex;
+  //wire [31:0] B_ex;
 
   // Instantiate the Unit Under Test (UUT)
   exe uut (
@@ -26,16 +26,17 @@ module exe_tb();
     .IR_id(IR_id),
     .NPC_ex(NPC_ex),
     .IR_ex(IR_ex),
-    .ALU_res(ALU_out),
-    .B_ex(B_ex),
-    .sel(sel)
+    .ALU_res(ALU_out)
+    //.B_ex(B_ex)
   );
 
   // Test stimulus
   initial begin
+    $dumpfile("exe.vcd");
+    $dumpvars(0, exe_tb);
     // Monitor signal changes
     $monitor("Time=%0t | A=%h | B=%h |cond = %b | ALU_out=%h", 
-              $time, uut.a, uut.b, sel, ALU_out);
+              $time, uut.a, uut.b, uut.cond, ALU_out);
 
     // Initialize inputs
     A = 0; B = 0; Imm = 0; NPC_id = 0; IR_id = 0;
