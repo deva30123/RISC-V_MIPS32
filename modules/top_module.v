@@ -7,7 +7,7 @@ module ifetch(
   output [31:0]IR
 );
   reg [31:0] mem [1023:0] ;
-  reg [31:0] PC;
+  reg [31:0] PC = 0;
   reg [31:0]Ir;
   always@(posedge clk)begin
     PC = sel?NPC_alu:(PC+1);
@@ -31,23 +31,27 @@ module decode(
   output[31:0] IR_id,
   output hlt
 );
+  reg halt = 0;
   reg [31:0] reg_b [31:0];//register bank
-  wire [4:0] op,rd,rs1,rs2;
-  always@(*) reg_b[0] = 32'b0;//R0 hard wired to 0
+  wire [5:0] op;
+  wire [4:0] rd,rs1,rs2;
   assign NPC_id = NPC_if;
   assign IR_id = IR_if;
   assign op = IR_if[31:26];
   assign rd = IR_if[25:21];
   assign rs1 = IR_if[20:16];
   assign rs2 = IR_if[15:11];
-  assign Imm = {{116{IR_if[15]}},IR_if[15:0]};
+  assign Imm = {{16{IR_if[15]}},IR_if[15:0]};
   assign A = reg_b[rs1];
   assign B = reg_b[rs2];
-  assign D = reg_b[rd];
-  assign hlt = (op == 6'b111111)?1:0;
-  always@(*) reg_b[rd_w] = LMD; 
+  assign D = reg_b[rd];  
+  always@(*)begin
+    reg_b[rd_w] = LMD;
+    halt = (op == 6'b111111)?1:0;
+    reg_b[0] = 32'b0;//R0 hard wired to 0
+  end
+  assign hlt = halt; 
 endmodule
-
 //excecute--------------------------------------------------------------------------------------------------------------------------------
 module exe(
   input [31:0] A,
@@ -64,7 +68,8 @@ module exe(
   wire[31:0] a,b;
   reg [31:0] ALU_out;
   wire[5:0] opcode; 
-  reg cond;
+  reg cond = 0;
+  assign IR_ex = IR_id;
   assign opcode = IR_id[31:26];
   assign a=(opcode[5:2]==4'b1101)?NPC_id:A;
   assign b=(opcode[4])?Imm:B;
@@ -103,7 +108,6 @@ BEQZ=>110100; BnEQZ=>110101
 beqz:- if(A=0)cond = 1 else cond = 0
 beqz:- if(A=0)cond = 0 else cond = 1
 */
-
 //memory access-----------------------------------------------------------------------------------------------------------------------------------
 module memax(
   input [31:0] IR_ex, ALU_ex, D_ex,
@@ -127,18 +131,16 @@ module memax(
   assign ALU_mem = ALU_ex;
   assign LMD = data[ALU_ex];
 endmodule
-
 //write back-----------------------------------------------------------------------------------------------------------------------------------------------------------
 module wb(
   input [31:0] IR_mx , ALU ,LMD,
   output [31:0] data, IR_wb
 );
   wire[5:0] opcode ;
-  assign opcode = IR_mx[31:0]; 
+  assign opcode = IR_mx[31:26]; 
   assign IR_wb = IR_mx;
   assign data = (opcode[5:1]==5'b11000)?LMD:ALU;
 endmodule
-
 // RISC-V module-------------------------------------------------------------------------------------------------------------------------------------------------------
 /*
 will have 2 modes
@@ -149,12 +151,13 @@ will have 2 modes
 module mips32(
   input clk_x
 );
- 
-  wire [31:0] NPC_if,IR_if;
   wire clk,hlt;
-  assign clk = clk_x & hlt;// clock gating when halted
+  wire [31:0] NPC_if,IR_if;
+  
+  assign clk = clk_x ; // clock gating when halted
   reg [31:0] npcx;
   reg sel;
+  
   ifetch i_f (
     .clk(clk),
     .NPC_alu(npcx),//from alu
@@ -163,16 +166,21 @@ module mips32(
     .NPC(NPC_if),
     .IR(IR_if)
   );
-  reg [31:0] NPC_id,IR_id;
-  always@(posedge clk)begin
-    NPC_id <= NPC_if;
-    IR_id <= IR_if;
+  
+  reg [31:0] NPC_Id,IR_Id;
+  
+  always@(negedge clk)begin
+    NPC_Id <= NPC_if;
+    IR_Id <= IR_if;
   end
   
-  wire [31:0] A,B,D,Imm,NPC_d,IR_d,Ds;
+  wire [31:0] A,B,D,Imm,NPC_id,IR_id,Ds;
+  reg [31:0] data;
+  reg [4:0] rd_addr;
+  
   decode id(
-    .NPC_if(NPC_id),
-    .IR_if(IR_id),
+    .NPC_if(NPC_Id),
+    .IR_if(IR_Id),
     .LMD(data),//from writeback
     .rd_w(rd_addr),//from writeback
     
@@ -180,22 +188,24 @@ module mips32(
     .B(B),
     .D(Ds),//to memax
     .Imm(Imm),
-    .NPC_id(NPC_d),
-    .IR_id(IR_d),
+    .NPC_id(NPC_id),
+    .IR_id(IR_id),
     .hlt(hlt)
   );
-  reg [31:0] Ax,Bx,Ix,NPCx,IRx, data,Dsx;
-  reg [4:0] rd_addr;
+  
+   reg [31:0] Ax,Bx,Ix,NPCx,IRx, Dsx;
+
   always@(posedge clk)begin
     Ax <= A;
     Bx <= B;
     Ix <= Imm;
-    NPCx <= NPC_d;
-    IRx <= IR_d;
+    NPCx <= NPC_id;
+    IRx <= IR_id;
     Dsx <= Ds;
   end  
   
-  wire [31:0] Irx, ALUx, Bex;  
+  wire [31:0] irx, alux, Bex; 
+  
   exe ex(
     .A(Ax),
     .B(Bx),
@@ -203,38 +213,42 @@ module mips32(
     .NPC_id(NPCx),
     .IR_id(IRx),    
     
-    .IR_ex(Irx),
-    .ALU_res(ALUx),
+    .IR_ex(irx),
+    .ALU_res(alux),
     //.B_ex(Bex),
     .NPC_ex(npcx),//to inst fetch
     .sel(sel)//to inst fetch
   );
+  
   reg [31:0] IrX,AluX,Dsm;
-  always@(posedge clk)begin
-    IrX<=Irx;
-    AluX<=ALUx;
+  always@(negedge clk)begin
+    IrX<=irx;
+    AluX<=alux;
     Dsm <= Dsx;
   end
   
   wire[31:0] IR_mem, LMD, ALU_mem; 
+  
   memax max(
     .IR_ex(IrX), .ALU_ex(AluX), .D_ex(Dsm),
     .IR_mem(IR_mem), .LMD(LMD), .ALU_mem(ALU_mem)
   );
-  reg[31:0] IR_mx ,ALUmx ,LMDx;
+  
+   reg[31:0] IR_mx ,ALUmx ,LMDx;
   always@(posedge clk)begin
     IR_mx<=IR_mem;
     ALUmx<=ALU_mem;
     LMDx<=LMD;
-  end  
+  end 
   wire [31:0] w_data, IR_wb;
+  
   wb w_b(
     .IR_mx(IR_mx) , .ALU(ALUmx) ,.LMD(LMDx),
     .data(w_data), .IR_wb(IR_wb)// to inst decode
   );
+  
   always@(posedge clk)begin
     data<=w_data;
     rd_addr<=IR_wb[25:21];    
   end
-  
 endmodule
