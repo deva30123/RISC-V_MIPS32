@@ -160,8 +160,7 @@ module mips32(
 );
   wire clk,hlt;
   wire [31:0] NPC_if,IR_if;
-  
-  assign clk = clk_x ; // clock gating when halted
+  assign clk = clk_x&(~hlt) ; // clock gating when halted
   reg [31:0] npcx;
   reg sel;
   
