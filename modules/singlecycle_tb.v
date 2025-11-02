@@ -36,6 +36,8 @@ module tb_mips32;
     uut.i_f.mem[3]=32'h0061_1000;
     uut.i_f.mem[4]=32'h4883_0002;
     uut.i_f.mem[5]=32'hc480_0003;
+    uut.i_f.mem[6]=32'hd000_0005;//branch
+    uut.i_f.mem[13]=32'hffff_0005;//hlt
   end
 
   // Simulation control
