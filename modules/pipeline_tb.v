@@ -53,6 +53,15 @@ module tb_mips32;
     uut.i_f.mem[16]=32'h0000_0000;//nop
 
     uut.i_f.mem[17]=32'hc480_0003;//store R4 in d3
+    
+    uut.i_f.mem[18]=32'h0000_0000;//nop
+    uut.i_f.mem[19]=32'h0000_0000;//nop
+    uut.i_f.mem[20]=32'h0000_0000;//nop
+    uut.i_f.mem[21]=32'h0000_0000;//nop
+    
+    uut.i_f.mem[21]=32'hd000_0005;//branch
+    uut.i_f.mem[27]=32'hffff_0005;//hlt
+    
   end
 //   initial begin
 //    // Test Case 0 filling up the reg bank
@@ -83,7 +92,7 @@ module tb_mips32;
     $display( "R4 = 0x%h ", uut.id.reg_b[4]);
 
     // Run simulation for 200 ns
-    #500;
+    #1000;
     $display("results after simulation...");
     $display( "R1 = 0x%h ", uut.id.reg_b[1]); 
     $display( "R2 = 0x%h ", uut.id.reg_b[2]);
