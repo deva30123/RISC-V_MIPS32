@@ -35,16 +35,17 @@ module decode(
   reg halt = 0;
   reg [31:0] reg_b [31:0];//register bank
   wire [5:0] op;
-  wire [4:0] rd,rs1,rs2;
+  wire [4:0] rd,rs1,rs2,sh;
   assign NPC_id = NPC_if;
   assign IR_id = IR_if;
   assign op = IR_if[31:26];
   assign rd = IR_if[25:21];
   assign rs1 = IR_if[20:16];
   assign rs2 = IR_if[15:11];
+  assign sh  = IR_if[10:6];
   assign Imm = {{16{IR_if[15]}},IR_if[15:0]};
   assign A = reg_b[rs1];
-  assign B = reg_b[rs2];
+  assign B = reg_b[rs2]<<sh;
   assign D = reg_b[rd];  
   always@(*)begin
     //reg_b[rd_w] = LMD;
