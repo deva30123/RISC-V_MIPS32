@@ -1,4 +1,3 @@
-// Code your design here
 module exe(
   input [31:0] A,
   input [31:0] B,
@@ -14,7 +13,7 @@ module exe(
   wire[31:0] a,b;
   reg [31:0] ALU_out;
   wire[5:0] opcode; 
-  reg cond;
+  reg cond = 0;
   assign IR_ex = IR_id;
   assign opcode = IR_id[31:26];
   assign a=(opcode[5:2]==4'b1101)?NPC_id:A;
@@ -41,7 +40,8 @@ module exe(
     end
     else cond = 0;
   end
-  assign NPC_ex = (cond)?ALU_out:NPC_id; //redundant
+ // assign NPC_ex = (cond)?ALU_out:NPC_id; //redundant
+  assign NPC_ex = ALU_out;
   assign ALU_res = ALU_out;
   assign sel = cond;
 endmodule
