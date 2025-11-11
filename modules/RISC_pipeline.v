@@ -1,6 +1,6 @@
 //fetch--------------------------------------------------------------------------------------------------------------------
 module ifetch(
-  input clk,   
+  input clk,rst,   
   input [31:0]NPC_alu,
   input sel,
   output [31:0]NPC,
@@ -9,9 +9,15 @@ module ifetch(
   reg [31:0] mem [1023:0] ;
   reg [31:0] PC = 0;
   reg [31:0]Ir;
-  always@(posedge clk)begin
-    PC = sel?NPC_alu:(PC+1);
-    Ir = mem[PC];
+  always@(posedge clk,posedge rst)begin
+    if (~rst) begin
+      PC = sel?NPC_alu:(PC+1);
+      Ir = mem[PC];
+    end
+    else begin 
+      PC = 0;
+      Ir = 0;
+    end
   end
   assign IR = Ir;
   assign NPC = PC+1;  
@@ -19,7 +25,6 @@ endmodule
 
 //decode-------------------------------------------------------------------------------------------------------------
 module decode(
-  input clk,
   input[31:0] NPC_if,
   input[31:0] IR_if,  
   input [31:0] LMD, //Data writeback
@@ -35,27 +40,21 @@ module decode(
   reg halt = 0;
   reg [31:0] reg_b [31:0];//register bank
   wire [5:0] op;
-  wire [4:0] rd,rs1,rs2,sh;
+  wire [4:0] rd,rs1,rs2;
   assign NPC_id = NPC_if;
   assign IR_id = IR_if;
   assign op = IR_if[31:26];
   assign rd = IR_if[25:21];
   assign rs1 = IR_if[20:16];
   assign rs2 = IR_if[15:11];
-  assign sh  = IR_if[10:6];
   assign Imm = {{16{IR_if[15]}},IR_if[15:0]};
   assign A = reg_b[rs1];
-  assign B = reg_b[rs2]<<sh;
+  assign B = reg_b[rs2];
   assign D = reg_b[rd];  
   always@(*)begin
-    //reg_b[rd_w] = LMD;
+    reg_b[rd_w] = LMD;
     halt = (op == 6'b111111)?1:0;
     reg_b[0] = 32'b0;//R0 hard wired to 0
-  end
-  always@(posedge clk )begin
-    reg_b[rd_w] <= LMD;
-    //halt = (op == 6'b111111)?1:0;
-    //reg_b[0] = 32'b0;//R0 hard wired to 0
   end
   assign hlt = halt; 
 endmodule
@@ -102,7 +101,8 @@ module exe(
     end
     else cond = 0;
   end
-  assign NPC_ex = (cond)?ALU_out:NPC_id; //redundant
+ // assign NPC_ex = (cond)?ALU_out:NPC_id; //redundant
+  assign NPC_ex = ALU_out;
   assign ALU_res = ALU_out;
   assign sel = cond;
 endmodule
@@ -156,7 +156,7 @@ will have 2 modes
 */
 
 module mips32(
-  input clk_x
+  input clk_x,rst
 );
   wire clk,hlt;
   wire [31:0] NPC_if,IR_if;
@@ -166,7 +166,7 @@ module mips32(
   reg sel;
   
   ifetch i_f (
-    .clk(clk),
+    .clk(clk),.rst(rst),
     .NPC_alu(npcx),//from alu
     .sel(sel),//from alu
     
@@ -176,9 +176,15 @@ module mips32(
   
   reg [31:0] NPC_Id,IR_Id;
   
-  always@(negedge clk)begin
-    NPC_Id <= NPC_if;
-    IR_Id <= IR_if;
+  always@(negedge clk or posedge rst)begin
+    if (rst) begin
+      NPC_Id <= 0;
+      IR_Id <= 0;
+    end
+    else begin
+      NPC_Id <= NPC_if;
+      IR_Id <= IR_if;
+    end
   end
   
   wire [31:0] A,B,D,Imm,NPC_id,IR_id,Ds;
@@ -202,13 +208,24 @@ module mips32(
   
    reg [31:0] Ax,Bx,Ix,NPCx,IRx, Dsx;
 
-  always@(posedge clk)begin
-    Ax <= A;
-    Bx <= B;
-    Ix <= Imm;
-    NPCx <= NPC_id;
-    IRx <= IR_id;
-    Dsx <= Ds;
+  always@(posedge clk or posedge rst)begin
+    if (rst)begin
+      Ax <= 0;
+      Bx <= 0;
+      Ix <= 0;
+      NPCx <= 0;
+      IRx <= 0;
+      Dsx <= 0;
+    end
+    else begin
+      Ax <= A;
+      Bx <= B;
+      Ix <= Imm;
+      NPCx <= NPC_id;
+      IRx <= IR_id;
+      Dsx <= Ds;
+    end
+    
   end  
   
   wire [31:0] irx, alux, Bex; 
@@ -228,10 +245,18 @@ module mips32(
   );
   
   reg [31:0] IrX,AluX,Dsm;
-  always@(negedge clk)begin
-    IrX<=irx;
-    AluX<=alux;
-    Dsm <= Dsx;
+  always@(negedge clk or posedge rst)begin
+    if(rst) begin
+      IrX<= 0;
+      AluX<= 0;
+      Dsm <= 0;
+    end
+    else begin 
+      IrX<=irx;
+      AluX<=alux;
+      Dsm <= Dsx;
+    end
+   
   end
   
   wire[31:0] IR_mem, LMD, ALU_mem; 
@@ -242,10 +267,18 @@ module mips32(
   );
   
    reg[31:0] IR_mx ,ALUmx ,LMDx;
-  always@(posedge clk)begin
-    IR_mx<=IR_mem;
-    ALUmx<=ALU_mem;
-    LMDx<=LMD;
+  always@(posedge clk or posedge rst)begin
+    if(rst) begin
+      IR_mx<=0;
+      ALUmx<=0;
+      LMDx<=0;
+    end
+    else begin
+      IR_mx<=IR_mem;
+      ALUmx<=ALU_mem;
+      LMDx<=LMD;
+    end
+    
   end 
   wire [31:0] w_data, IR_wb;
   
@@ -254,8 +287,15 @@ module mips32(
     .data(w_data), .IR_wb(IR_wb)// to inst decode
   );
   
-  always@(posedge clk)begin
-    data<=w_data;
-    rd_addr<=IR_wb[25:21];    
+  always@(posedge clk or posedge rst)begin
+    if(rst) begin
+        data<=0;
+        rd_addr<=0; 
+    end
+    else begin 
+        data<=w_data;
+    	rd_addr<=IR_wb[25:21]; 
+    end
+     
   end
 endmodule
