@@ -6,10 +6,11 @@ module tb_mips32;
 
   // Clock signal
   reg clk;
+  reg rst =0 ;
 
   // Instantiate the DUT (Device Under Test)
   mips32 uut (
-    .clk_x(clk)
+    .clk_x(clk),.rst(rst)
   );
 
   // Clock generation: 10 ns period (100 MHz)
@@ -18,6 +19,7 @@ module tb_mips32;
     forever #10 clk = ~clk;
   end
   initial begin
+    rst =0 ;
     //fillup data mem
      for(int i=0;i<1024;i++)begin
       uut.max.data[i] = $random;      
@@ -28,6 +30,7 @@ module tb_mips32;
     $display( "D3 = 0x%h ", uut.max.data[3]);    
   end
   initial begin
+    rst =0 ;
     //fillup inst mem
     uut.i_f.mem[1]=32'hc020_0001;//load R1 with d1
     uut.i_f.mem[2]=32'hc040_0002;//load r2 with d2
@@ -74,6 +77,7 @@ module tb_mips32;
   // Simulation control
  
   initial begin
+    rst =0 ;
     // Initialize VCD file for waveform dumping
     $dumpfile("mips32_tb.vcd");
     $dumpvars(0, tb_mips32);
@@ -92,7 +96,7 @@ module tb_mips32;
     $display( "R4 = 0x%h ", uut.id.reg_b[4]);
 
     // Run simulation for 200 ns
-    #1000;
+    #700;
     $display("results after simulation...");
     $display( "R1 = 0x%h ", uut.id.reg_b[1]); 
     $display( "R2 = 0x%h ", uut.id.reg_b[2]);
@@ -102,6 +106,8 @@ module tb_mips32;
     $display( "D1 = 0x%h ", uut.max.data[1]); 
     $display( "D2 = 0x%h ", uut.max.data[2]);
     $display( "D3 = 0x%h ", uut.max.data[3]); 
+    rst = 1;
+    #300;
 
     // Finish simulation
     $display("Simulation complete.");
