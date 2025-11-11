@@ -293,7 +293,7 @@ module mips32(
         rd_addr<=0; 
     end
     else begin 
-        data<=w_data;
+      data<=w_data;
     	rd_addr<=IR_wb[25:21]; 
     end
      
