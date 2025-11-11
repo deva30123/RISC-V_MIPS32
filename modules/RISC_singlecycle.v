@@ -1,7 +1,6 @@
-// Code your design here
 //fetch--------------------------------------------------------------------------------------------------------------------
 module ifetch(
-  input clk,   
+  input clk,rst,   
   input [31:0]NPC_alu,
   input sel,
   output [31:0]NPC,
@@ -10,9 +9,15 @@ module ifetch(
   reg [31:0] mem [1023:0] ;
   reg [31:0] PC = 0;
   reg [31:0]Ir;
-  always@(posedge clk)begin
-    PC = sel?NPC_alu:(PC+1);
-    Ir = mem[PC];
+  always@(posedge clk,posedge rst)begin
+    if (~rst) begin
+      PC = sel?NPC_alu:(PC+1);
+      Ir = mem[PC];
+    end
+    else begin 
+      PC = 0;
+      Ir = 0;
+    end
   end
   assign IR = Ir;
   assign NPC = PC+1;  
@@ -127,7 +132,7 @@ module memax(
   //reg LData;
   assign opcode = IR_ex[31:26];
   always@(posedge clk) begin
-    data[ALU_ex]=(opcode==6'b110001)?D_ex:data[ALU_ex];
+    data[ALU_ex]=(opcode==6'b110001)?D_ex:data[ALU_ex];//store else do nothing
     // if (opcode[5:1]==2'b11000) begin
     //   case(opcode[0])
     //     1'b0:LData=data[ALU_out_ex];    // load
@@ -158,7 +163,7 @@ will have 2 modes
 */
 
 module mips32(
-  input clk_x
+  input clk_x,rst
 );
   wire clk,hlt;
   wire [31:0] NPC_if,IR_if;
@@ -167,7 +172,7 @@ module mips32(
   reg sel;
   
   ifetch i_f (
-    .clk(clk),
+    .clk(clk),.rst(rst),
     .NPC_alu(npcx),//from alu
     .sel(sel),//from alu
     
@@ -222,7 +227,6 @@ module mips32(
    
   wire [31:0]ir_wb;
   wb w_b(
-   
     .IR_mx(IR_mem) , .ALU(ALU_mem) ,.LMD(LMD),
     .data(data), .IR_wb(ir_wb)// to inst decode
   );
