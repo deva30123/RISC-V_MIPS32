@@ -85,10 +85,10 @@ module exe(
       case(opcode[3:0])
         4'd0: ALU_out = a+b;
         4'd1: ALU_out = a-b;
-        4'd2: ALU_out = a*b;
-        4'd3: ALU_out = a>b?1:0;
+        4'd2: ALU_out = a^b;
+        4'd3: ALU_out = a&b;
         4'd4: ALU_out = a|b;
-        4'd5: ALU_out = a&b;
+        4'd5: ALU_out = a>b?1:0;
       endcase
     end            // Arithmetic and logic operations
     else begin
