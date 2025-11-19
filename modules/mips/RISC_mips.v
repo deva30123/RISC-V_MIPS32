@@ -77,7 +77,7 @@ module exe(
   reg cond = 0;
   assign IR_ex = IR_id;
   assign opcode = IR_id[31:26];
-  assign a=(opcode[5:2]==4'b1101)?NPC_id:A;
+  assign a=A;
   assign b=(opcode[4])?Imm:B;
   
   always@(*) begin// Alu block
@@ -102,7 +102,7 @@ module exe(
     else cond = 0;
   end
  // assign NPC_ex = (cond)?ALU_out:NPC_id; //redundant
-  assign NPC_ex = ALU_out;
+  assign NPC_ex = NPC_id + Imm ;
   assign ALU_res = ALU_out;
   assign sel = cond;
 endmodule
@@ -149,12 +149,6 @@ module wb(
   assign data = (opcode[5:1]==5'b11000)?LMD:ALU;
 endmodule
 // RISC-V module-------------------------------------------------------------------------------------------------------------------------------------------------------
-/*
-will have 2 modes
-1. code:- will write instructions into the inst mem 
-2 excecute:- will excecute the instructions in the inst bank in repeat until halted
-*/
-
 module mips32(
   input clk_x,rst
 );
@@ -206,9 +200,9 @@ module mips32(
     .hlt(hlt)
   );
   
-   reg [31:0] Ax,Bx,Ix,NPCx,IRx, Dsx;
+  reg [31:0] Ax,Bx,Ix,NPCx,IRx, Dsx;
 
-  always@(posedge clk or posedge rst)begin
+  always@(negedge clk or posedge rst)begin
     if (rst)begin
       Ax <= 0;
       Bx <= 0;
@@ -267,7 +261,7 @@ module mips32(
   );
   
    reg[31:0] IR_mx ,ALUmx ,LMDx;
-  always@(posedge clk or posedge rst)begin
+  always@(negedge clk or posedge rst)begin
     if(rst) begin
       IR_mx<=0;
       ALUmx<=0;
@@ -287,13 +281,13 @@ module mips32(
     .data(w_data), .IR_wb(IR_wb)// to inst decode
   );
   
-  always@(posedge clk or posedge rst)begin
+  always@(negedge clk or posedge rst)begin
     if(rst) begin
         data<=0;
         rd_addr<=0; 
     end
     else begin 
-      data<=w_data;
+        data<=w_data;
     	rd_addr<=IR_wb[25:21]; 
     end
      
