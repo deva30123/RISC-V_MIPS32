@@ -16,7 +16,7 @@ module exe(
   reg cond = 0;
   assign IR_ex = IR_id;
   assign opcode = IR_id[31:26];
-  assign a=(opcode[5:2]==4'b1101)?NPC_id:A;
+  assign a=A;
   assign b=(opcode[4])?Imm:B;
   
   always@(*) begin// Alu block
@@ -41,7 +41,7 @@ module exe(
     else cond = 0;
   end
  // assign NPC_ex = (cond)?ALU_out:NPC_id; //redundant
-  assign NPC_ex = ALU_out;
+  assign NPC_ex = NPC_id + Imm ;
   assign ALU_res = ALU_out;
   assign sel = cond;
 endmodule
