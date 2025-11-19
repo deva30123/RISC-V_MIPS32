@@ -1,5 +1,4 @@
-// Code your testbench here
-// or browse Examples
+
 `timescale 1ns / 1ps
 
 module tb_mips32;
@@ -29,6 +28,15 @@ module tb_mips32;
     $display( "D2 = 0x%h ", uut.max.data[2]);
     $display( "D3 = 0x%h ", uut.max.data[3]);    
   end
+  
+//   initial begin
+//    // Test Case 0 filling up the reg bank
+//     for(int i=1;i<32;i++)begin
+//       uut.id.reg_b[i] = $random;      
+//       $display("T=%0t | R%d = 0x%h ",$time, i, uut.id.reg_b[i]); 
+//     end
+//   end  
+  
   initial begin
     rst =0 ;
     //fillup inst mem
@@ -66,13 +74,7 @@ module tb_mips32;
     uut.i_f.mem[27]=32'hffff_0005;//hlt
     
   end
-//   initial begin
-//    // Test Case 0 filling up the reg bank
-//     for(int i=1;i<32;i++)begin
-//       uut.id.reg_b[i] = $random;      
-//       $display("T=%0t | R%d = 0x%h ",$time, i, uut.id.reg_b[i]); 
-//     end
-//   end
+
 
   // Simulation control
  
@@ -113,5 +115,4 @@ module tb_mips32;
     $display("Simulation complete.");
     $finish;
   end
-
 endmodule
