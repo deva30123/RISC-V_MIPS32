@@ -27,16 +27,28 @@ module tb_mips32;
     $display( "D2 = 0x%h ", uut.max.data[2]);
     $display( "D3 = 0x%h ", uut.max.data[3]);    
   end
+  int i=1;
+//   initial begin
+//     rst=0;
+//     //fillup inst mem
+//     uut.i_f.mem[1]=32'hc020_0001;
+//     uut.i_f.mem[2]=32'hc040_0002;
+//     uut.i_f.mem[3]=32'h0061_1000;
+//     uut.i_f.mem[4]=32'h4883_0002;
+//     uut.i_f.mem[5]=32'hc480_0003;
+//     uut.i_f.mem[6]=32'hd000_0005;//branch
+//     uut.i_f.mem[12]=32'hffff_0005;//hlt
+//   end
   initial begin
     rst=0;
     //fillup inst mem
-    uut.i_f.mem[1]=32'hc020_0001;
-    uut.i_f.mem[2]=32'hc040_0002;
-    uut.i_f.mem[3]=32'h0061_1000;
-    uut.i_f.mem[4]=32'h4883_0002;
-    uut.i_f.mem[5]=32'hc480_0003;
-    uut.i_f.mem[6]=32'hd000_0005;//branch
-    uut.i_f.mem[13]=32'hffff_0005;//hlt
+    uut.i_f.mem[i++]=32'hc020_0001;
+    uut.i_f.mem[i++]=32'hc040_0002;
+    uut.i_f.mem[i++]=32'h0061_1000;
+    uut.i_f.mem[i++]=32'h4883_0002;
+    uut.i_f.mem[i++]=32'hc480_0003;
+    uut.i_f.mem[i++]=32'hd000_0005;//branch
+    uut.i_f.mem[i++]=32'hffff_0005;//hlt
   end
 
   // Simulation control
