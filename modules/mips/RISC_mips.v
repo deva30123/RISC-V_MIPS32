@@ -181,14 +181,15 @@ module mips32(
     end
   end
   
-  wire [31:0] A,B,D,Imm,NPC_id,IR_id,Ds;
-  reg [31:0] data;
-  reg [4:0] rd_addr;
+  wire [31:0] A,B,D,Imm,NPC_id,IR_id,Ds,w_data;
+//   reg [31:0] data;
+//   reg [4:0] rd_addr;
+  wire [4:0] rd_addr;
   
   decode id(
     .NPC_if(NPC_Id),
     .IR_if(IR_Id),
-    .LMD(data),//from writeback
+    .LMD(w_data),//from writeback
     .rd_w(rd_addr),//from writeback
     
     .A(A),
@@ -274,22 +275,24 @@ module mips32(
     end
     
   end 
-  wire [31:0] w_data, IR_wb;
+  wire [31:0]  IR_wb;
   
   wb w_b(
     .IR_mx(IR_mx) , .ALU(ALUmx) ,.LMD(LMDx),
     .data(w_data), .IR_wb(IR_wb)// to inst decode
   );
   
-  always@(negedge clk or posedge rst)begin
-    if(rst) begin
-        data<=0;
-        rd_addr<=0; 
-    end
-    else begin 
-        data<=w_data;
-    	rd_addr<=IR_wb[25:21]; 
-    end
-     
-  end
+  assign rd_addr = IR_wb[25:21];
+  
+//   always@(negedge clk or posedge rst)begin
+//     if(rst) begin
+//         data<=0;
+//         rd_addr<=0; 
+//     end
+//     else begin 
+//         data<=w_data;
+//     	rd_addr<=IR_wb[25:21]; 
+//     end     
+//   end
+  
 endmodule
