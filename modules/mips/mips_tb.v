@@ -37,43 +37,61 @@ module tb_mips32;
 //     end
 //   end  
   
+//   initial begin
+//     rst =0 ;
+//     //fillup inst mem
+//     uut.i_f.mem[1]=32'hc020_0001;//load R1 with d1
+//     uut.i_f.mem[2]=32'hc040_0002;//load r2 with d2
+    
+//     uut.i_f.mem[3]=32'h0000_0000;//nop
+//     uut.i_f.mem[4]=32'h0000_0000;//nop
+//     uut.i_f.mem[5]=32'h0000_0000;//nop
+//     uut.i_f.mem[6]=32'h0000_0000;//nop
+    
+//     uut.i_f.mem[7]=32'h0061_1000;//R3=R1+R2
+        
+//     uut.i_f.mem[8]=32'h0000_0000;//nop
+//     uut.i_f.mem[9]=32'h0000_0000;//nop
+//     uut.i_f.mem[10]=32'h0000_0000;//nop
+//     uut.i_f.mem[11]=32'h0000_0000;//nop
+    
+
+//     uut.i_f.mem[12]=32'h4883_0002;//R4=R3*2
+        
+//     uut.i_f.mem[13]=32'h0000_0000;//nop
+//     uut.i_f.mem[14]=32'h0000_0000;//nop
+//     uut.i_f.mem[15]=32'h0000_0000;//nop
+//     uut.i_f.mem[16]=32'h0000_0000;//nop
+
+//     uut.i_f.mem[17]=32'hc480_0003;//store R4 in d3
+    
+//     uut.i_f.mem[18]=32'h0000_0000;//nop
+//     uut.i_f.mem[19]=32'h0000_0000;//nop
+//     uut.i_f.mem[20]=32'h0000_0000;//nop
+//     uut.i_f.mem[21]=32'h0000_0000;//nop
+    
+//     uut.i_f.mem[21]=32'hd000_0005;//branch
+//     uut.i_f.mem[27]=32'hffff_0005;//hlt
+    
+//   end
+  
   initial begin
-    rst =0 ;
+    int i=1;
+    rst=0;
     //fillup inst mem
-    uut.i_f.mem[1]=32'hc020_0001;//load R1 with d1
-    uut.i_f.mem[2]=32'hc040_0002;//load r2 with d2
-    
-    uut.i_f.mem[3]=32'h0000_0000;//nop
-    uut.i_f.mem[4]=32'h0000_0000;//nop
-    uut.i_f.mem[5]=32'h0000_0000;//nop
-    uut.i_f.mem[6]=32'h0000_0000;//nop
-    
-    uut.i_f.mem[7]=32'h0061_1000;//R3=R1+R2
-        
-    uut.i_f.mem[8]=32'h0000_0000;//nop
-    uut.i_f.mem[9]=32'h0000_0000;//nop
-    uut.i_f.mem[10]=32'h0000_0000;//nop
-    uut.i_f.mem[11]=32'h0000_0000;//nop
-    
-
-    uut.i_f.mem[12]=32'h4883_0002;//R4=R3*2
-        
-    uut.i_f.mem[13]=32'h0000_0000;//nop
-    uut.i_f.mem[14]=32'h0000_0000;//nop
-    uut.i_f.mem[15]=32'h0000_0000;//nop
-    uut.i_f.mem[16]=32'h0000_0000;//nop
-
-    uut.i_f.mem[17]=32'hc480_0003;//store R4 in d3
-    
-    uut.i_f.mem[18]=32'h0000_0000;//nop
-    uut.i_f.mem[19]=32'h0000_0000;//nop
-    uut.i_f.mem[20]=32'h0000_0000;//nop
-    uut.i_f.mem[21]=32'h0000_0000;//nop
-    
-    uut.i_f.mem[21]=32'hd000_0005;//branch
-    uut.i_f.mem[27]=32'hffff_0005;//hlt
-    
+    uut.i_f.mem[i++]=32'hc020_0001;//load R1 with d1
+    uut.i_f.mem[i++]=32'hc040_0002;//load r2 with d2
+    uut.i_f.mem[i++]=32'h0000_0000;//nop
+    uut.i_f.mem[i++]=32'h0000_0000;//nop
+    uut.i_f.mem[i++]=32'h0000_0000;//nop
+    uut.i_f.mem[i++]=32'h0061_1000;//R3=R1+R2
+    uut.i_f.mem[i++]=32'h4883_0002;//R4=R3^2
+    uut.i_f.mem[i++]=32'hc480_0003;//store R4 in d3
+    uut.i_f.mem[i++]=32'hd000_0005;//branch
+    uut.i_f.mem[i++]=32'hffff_0005;//hlt
   end
+  
+
 
 
   // Simulation control
